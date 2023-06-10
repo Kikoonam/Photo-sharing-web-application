@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 import { signInWithPopup,GoogleAuthProvider } from '@firebase/auth'
-import { auth ,provider} from '../firebase'
+import { auth, provider} from '../firebase'
 
 const Login =(props)=>{
     const authHandler=()=>{

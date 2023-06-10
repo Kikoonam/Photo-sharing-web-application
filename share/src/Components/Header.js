@@ -1,9 +1,17 @@
 import styled from 'styled-components'
 import {Link} from 'react-router-dom'
+import {useDispatch, useSelector} from 'react-redux'
+import { useNavigate } from 'react-router-dom';
 import { signInWithPopup,GoogleAuthProvider } from '@firebase/auth'
-import { auth ,provider} from '../../firebase'
+import { auth ,provider} from '../firebase'
+import { selectUserName, setUserLoginDetails,selectUserPhoto } from '../features/user/userSlice'
 
 const Header=(props) =>{
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const userName = useSelector(selectUserName);
+  const userPhoto = useSelector(selectUserPhoto);
+
   const handleAuth = () =>{
     signInWithPopup(auth,provider)
     .then ((result)=>{
@@ -12,6 +20,7 @@ const Header=(props) =>{
       const token = credential.accessToken;
       // The signed-in user info.
       const user = result.user;
+       setUser(user);
     }).catch((error)=>{
       // Handle Errors here.
       const errorCode = error.code;
@@ -20,21 +29,41 @@ const Header=(props) =>{
       const email = error.customData.email;
       // The AuthCredential type that was used.
       const credential = GoogleAuthProvider.credentialFromError(error);
+      alert(error.message);
     });
+  }
+
+  const setUser=(user)=>{
+    dispatch(
+      setUserLoginDetails({
+        name:user.displayName,
+        email:user.email,
+        photo:user.photoURL,
+      })
+    )
   }
   return <Nav>
     <Logo>Capture&Share</Logo>
-    <NavMenu>
-      <a >
+    {
+      !userName ?
+      <Login onClick={handleAuth}>Login</Login>
+      :
+      <>
+       <NavMenu>
+      <a href='./home'>
+      <img></img>
       <span>Home</span>
       </a>
       <a>
         <span>Appointment</span>
       </a>
-      
-      
+
     </NavMenu>
-    <Login onClick={handleAuth}>Login</Login>
+    <UserImg src={userPhoto} alt={userName}/>
+      </>
+    }
+   
+    
   </Nav>
 }
 const Nav = styled.nav`
