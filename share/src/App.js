@@ -3,12 +3,20 @@ import Login from './Components/Login';
 
 import RootLayout from './Pages/RootLayout';
 import Home from './Components/Home';
+import Profile from './Components/Profile';
 const router = createBrowserRouter([
   {path: '/',
    element: <RootLayout/>,
   children:[
-    {path:'/',element:<Login/>},
-    {path:'/home',element:<Home/>},
+    {path:'/',
+      element:<Login/>
+    },
+    {path:'/home',
+    element:<Home/>},
+    {
+      path:'/profile',
+      element:<Profile/>
+    }
   ]},
   ,
 ]);
