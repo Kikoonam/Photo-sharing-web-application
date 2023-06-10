@@ -4,7 +4,9 @@ import {useDispatch, useSelector} from 'react-redux'
 import { useNavigate } from 'react-router-dom';
 import { signInWithPopup,GoogleAuthProvider } from '@firebase/auth'
 import { auth ,provider} from '../firebase'
-import { selectUserName, setUserLoginDetails,selectUserPhoto } from '../features/user/userSlice'
+import { selectUserName, setUserLoginDetails,selectUserPhoto, setSignOutState } from '../features/user/userSlice'
+import { useEffect } from 'react';
+import { async } from '@firebase/util';
 
 const Header=(props) =>{
   const dispatch = useDispatch();
@@ -12,7 +14,20 @@ const Header=(props) =>{
   const userName = useSelector(selectUserName);
   const userPhoto = useSelector(selectUserPhoto);
 
+  useEffect(() => {
+    auth.onAuthStateChanged(async(user)=>{
+      if(user){
+        setUser(user)
+        navigate('./home')
+      }
+    })
+    return () => {
+    
+    };
+  }, [userName]);
+
   const handleAuth = () =>{
+    if(!userName){
     signInWithPopup(auth,provider)
     .then ((result)=>{
       // This gives you a Google Access Token. You can use it to access the Google API.
@@ -29,8 +44,19 @@ const Header=(props) =>{
       const email = error.customData.email;
       // The AuthCredential type that was used.
       const credential = GoogleAuthProvider.credentialFromError(error);
-      alert(error.message);
+      alert(errorMessage);
     });
+  }else if(userName){
+    auth.signOut()
+    .then(()=>{
+      dispatch(setSignOutState())
+      navigate('/');
+    })
+    .catch((err)=>{
+      alert(err.message);
+    })
+  }
+
   }
 
   const setUser=(user)=>{
@@ -59,7 +85,12 @@ const Header=(props) =>{
       </a>
 
     </NavMenu>
+    <SignOut>
     <UserImg src={userPhoto} alt={userName}/>
+    <DropDown>
+      <span onClick={handleAuth}>Sign Out</span>
+    </DropDown>
+    </SignOut>
       </>
     }
    
@@ -176,7 +207,7 @@ const DropDown = styled.div`
   border-radius: 4px;
   box-shadow: rgb(0 0 0 / 50%) 0px 0px 18px 0px;
   padding: 10px;
-  font-size: 14px;
+  font-size: 13px;
   letter-spacing: 3px;
   width: 100px;
   opacity: 0;

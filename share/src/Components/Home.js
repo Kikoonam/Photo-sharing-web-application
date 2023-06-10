@@ -1,15 +1,9 @@
-import React from 'react';
-import styles from './Welcome.module.css';
+import styled from "styled-components";
 
-const WelcomePage = () => {
-  return (
-    <div className={styles['welcome-page']}>
-      <h1 className={styles['welcome-title']}>Welcome to My Web App!</h1>
-      <p className={styles['welcome-description']}>
-        Enjoy sharing videos and photos, scheduling appointments, and more.
-      </p>
-    </div>
-  );
+const Home = (props) => {
+  return <div>
+    Home
+  </div>;
 };
 
-export default WelcomePage;
+export default Home;
