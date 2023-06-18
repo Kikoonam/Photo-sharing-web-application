@@ -1,29 +1,71 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Button, TextField } from '@mui/material';
+import { storage,database } from '../firebase';
+import { selectUserName } from '../features/user/userSlice';
+import {  useSelector } from "react-redux";
+import { ref ,uploadBytes, getDownloadURL} from 'firebase/storage';
+import {v4} from 'uuid'
+
+
 
 const ImageUpload = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [caption, setCaption] = useState('');
+  const [fileError, setFileError] = useState('');
+  const [captionError, setCaptionError] = useState('');
+  const [imageUpload,setImageUpload]=useState(' ');
+  const [imageURl, setImageURl] = useState('');
+  const userName = useSelector(selectUserName);
+  
 
   const handleImageSelect = (event) => {
     const imageFile = event.target.files[0];
+    setImageUpload(imageFile);
     setSelectedImage(URL.createObjectURL(imageFile));
+    setFileError('');
   };
 
   const handleCaptionChange = (event) => {
     setCaption(event.target.value);
+    setCaptionError('');
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    // Perform your image upload logic here
-    console.log('Selected Image:', selectedImage);
-    console.log('Caption:', caption);
-    // Reset the form
+  
+    if (!selectedImage) {
+      setFileError('Please choose an image.');
+      return;
+    }
+    if (!caption) {
+      setCaptionError('Please enter a caption.');
+      return;
+    }
+
+    if (caption.split(' ').length > 50) {
+      setCaptionError('Caption should not exceed 50 words.');
+      return;
+    }
+
+ const postId= v4();
+// Create a reference to 'images/mountains.jpg'
+const imageRef = ref(storage, `images/${postId}`);
+ uploadBytes(imageRef,imageUpload).then(()=>{
+  alert('Image uploaded')
+  getDownloadURL(ref(storage, `images/${postId}`)).then((url)=>{
+    setImageURl(url);
+   })
+})
+     
+    // Reset the form after successful submission
     setSelectedImage(null);
     setCaption('');
+    setImageURl('');
+    setImageUpload(null);
+
   };
+  
 
   return (
     <Container>
@@ -38,17 +80,19 @@ const ImageUpload = () => {
               className="file-input"
             />
             <span>Choose Image</span>
+            
+            {fileError && <ErrorText>{fileError}</ErrorText>}
           </FileInputContainer>
+          
           <TextField
-            label="Enter caption"
-            variant="outlined"
-            value={caption}
-            onChange={handleCaptionChange}
-            fullWidth
-            margin="normal"
-            InputLabelProps={{ style: { color: 'black' } }}
-            inputProps={{ style: { color: 'black' } }}
-          />
+          label="Caption"
+          value={caption}
+          onChange={handleCaptionChange}
+          fullWidth
+          multiline
+          rows={4}
+        />
+          {captionError && <ErrorText>{captionError}</ErrorText>}
           <Button variant="contained" color="primary" type="submit">
             Upload
           </Button>
@@ -90,6 +134,9 @@ const FileInputContainer = styled.label`
   .file-input {
     display: none;
   }
+`;
+const ErrorText = styled.div`
+  color: red;
 `;
 
 export default ImageUpload;
