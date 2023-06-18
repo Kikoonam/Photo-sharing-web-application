@@ -1,104 +1,103 @@
-import styled from 'styled-components'
-import {Link} from 'react-router-dom'
-import {useDispatch, useSelector} from 'react-redux'
-import { useNavigate } from 'react-router-dom';
-import { signInWithPopup,GoogleAuthProvider } from '@firebase/auth'
-import { auth ,provider} from '../firebase'
-import { selectUserName, setUserLoginDetails,selectUserPhoto, setSignOutState } from '../features/user/userSlice'
-import { useEffect } from 'react';
-import { async } from '@firebase/util';
+import styled from "styled-components";
+import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { signInWithPopup, GoogleAuthProvider } from "@firebase/auth";
+import { auth, provider } from "../firebase";
+import {
+  selectUserName,
+  setUserLoginDetails,
+  selectUserPhoto,
+  setSignOutState,
+} from "../features/user/userSlice";
+import { useEffect } from "react";
 
-const Header=(props) =>{
+const Header = (props) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const userName = useSelector(selectUserName);
   const userPhoto = useSelector(selectUserPhoto);
 
   useEffect(() => {
-    auth.onAuthStateChanged(async(user)=>{
-      if(user){
-        setUser(user)
-        navigate('./home')
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        setUser(user);
+        navigate("/home", { replace: true });
       }
-    })
-    return () => {
-    
-    };
+    });
   }, [userName]);
 
-  const handleAuth = () =>{
-    if(!userName){
-    signInWithPopup(auth,provider)
-    .then ((result)=>{
-      // This gives you a Google Access Token. You can use it to access the Google API.
-      const credential = GoogleAuthProvider.credentialFromResult(result);
-      const token = credential.accessToken;
-      // The signed-in user info.
-      const user = result.user;
-       setUser(user);
-    }).catch((error)=>{
-      // Handle Errors here.
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      // The email of the user's account used.
-      const email = error.customData.email;
-      // The AuthCredential type that was used.
-      const credential = GoogleAuthProvider.credentialFromError(error);
-      alert(errorMessage);
-    });
-  }else if(userName){
-    auth.signOut()
-    .then(()=>{
-      dispatch(setSignOutState())
-      navigate('/');
-    })
-    .catch((err)=>{
-      alert(err.message);
-    })
-  }
+  const handleAuth = () => {
+    if (!userName) {
+      signInWithPopup(auth, provider)
+        .then((result) => {
+          const user = result.user;
+          setUser(user);
+        })
+        .catch((error) => {
+          const errorMessage = error.message;
+          alert(errorMessage);
+        });
+    } else if (userName) {
+      auth
+        .signOut()
+        .then(() => {
+          dispatch(setSignOutState());
+          navigate("/", { replace: true });
+        })
+        .catch((err) => {
+          alert(err.message);
+        });
+    }
+  };
 
-  }
-
-  const setUser=(user)=>{
+  const setUser = (user) => {
     dispatch(
       setUserLoginDetails({
-        name:user.displayName,
-        email:user.email,
-        photo:user.photoURL,
+        name: user.displayName,
+        email: user.email,
+        photo: user.photoURL,
       })
-    )
-  }
-  return <Nav>
-    <Logo>Capture&Share</Logo>
-    {
-      !userName ?
-      <Login onClick={handleAuth}>Login</Login>
-      :
-      <>
-       <NavMenu>
-      <a href='./home'>
-      <img></img>
-      <span>Home</span>
-      </a>
-      <a>
-        <span>Appointment</span>
-      </a>
-
-    </NavMenu>
-    <SignOut>
-     
-    <UserImg src={userPhoto} alt={userName}/>
-  
-    <DropDown>
-      <span onClick={handleAuth}>Sign Out</span>
-    </DropDown>
-    </SignOut>
-      </>
-    }
-   
-    
-  </Nav>
-}
+    );
+  };
+  return (
+    <Nav>
+      <Logo>Capture&Share</Logo>
+      {!userName ? (
+        <Login onClick={handleAuth}>Login</Login>
+      ) : (
+        <>
+          <NavMenu>
+            <a>
+              <Link to='/home'>
+              <img></img>
+              <span>Home</span>
+              </Link>
+            </a>
+            <a>
+              <Link to='/appointment'>
+              <span>Appointment</span>
+              </Link>
+            </a>
+            <a>
+              <Link to='/upload'>
+              <span>Upload</span>
+              </Link>
+            </a>
+          </NavMenu>
+          <SignOut>
+            <Link to='/profile'>
+            <UserImg src={userPhoto} alt={userName} />
+            </Link>
+            <DropDown>
+              <span onClick={handleAuth}>Sign Out</span>
+            </DropDown>
+          </SignOut>
+        </>
+      )}
+    </Nav>
+  );
+};
 const Nav = styled.nav`
   position: fixed;
   top: 0;
@@ -171,16 +170,17 @@ const NavMenu = styled.div`
         opacity: 1 !important;
       }
     }
-  }`
+  }
+`;
 
-  const Logo = styled.a`
-  padding:0;
-  width:300px;
+const Logo = styled.a`
+  padding: 0;
+  width: 300px;
   max-height: 70px;
-  font-size:2;
-  display:inline-block;
-  `
-  const Login = styled.a`
+  font-size: 2;
+  display: inline-block;
+`;
+const Login = styled.a`
   background-color: rgba(0, 0, 0, 0.6);
   padding: 8px 16px;
   text-transform: uppercase;
@@ -237,6 +237,5 @@ const SignOut = styled.div`
     }
   }
 `;
-
 
 export default Header;

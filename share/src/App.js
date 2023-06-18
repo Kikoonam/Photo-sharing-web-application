@@ -4,6 +4,9 @@ import Login from './Components/Login';
 import RootLayout from './Pages/RootLayout';
 import Home from './Components/Home';
 import Profile from './Components/Profile';
+import ImageUpload from './Components/ImageUpload';
+
+
 const router = createBrowserRouter([
   {path: '/',
    element: <RootLayout/>,
@@ -16,6 +19,10 @@ const router = createBrowserRouter([
     {
       path:'/profile',
       element:<Profile/>
+    },
+    {
+      path:'/upload',
+      element:<ImageUpload/>
     }
   ]},
   ,

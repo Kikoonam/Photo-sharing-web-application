@@ -106,4 +106,3 @@ const SignUp = styled.a`
   }
 `;
 export default Login;
-

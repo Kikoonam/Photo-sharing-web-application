@@ -3,9 +3,7 @@ import Avatar from '@mui/material/Avatar'
 
 
 const Post =(props)=>{
-
-    
-    return (
+ return (
    <PostContainer>
         <PostHeader>
             <PostAvatar> 
@@ -15,7 +13,7 @@ const Post =(props)=>{
         <h3>{props.username}</h3>
         {/*header -> avatar + username*/ }
         </PostHeader>
-        <PostImage src={props.imageUrl}/>
+        <PostImage src={props.imageURL}/>
         {/* username + caption */}
          <PostCaption>
             <strong>{props.username}</strong>
